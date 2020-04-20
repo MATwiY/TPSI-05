@@ -14,7 +14,6 @@ import javax.servlet.http.HttpSession;
 @WebServlet(name = "HelloSrvlet", urlPatterns = {"/"})
 public class HelloSrvlet extends HttpServlet {
 
-    protected int timer = 0;
     
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -22,35 +21,28 @@ public class HelloSrvlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         
         HttpSession session = request.getSession();
-        setTimer();
-        session.setAttribute("timer", timer);
+        
         Integer timer = (Integer) session.getAttribute("timer");
+        if(timer == null){
+            timer = 0;
+        }
+          timer++;
         
-        List<Student> studentList = new ArrayList<>();
+        session.setAttribute("timer", timer);
         
-        Student s1 = new Student("Jan", "Kowalski", "janKowalski@poczta.pl");
-        Student s2 = new Student("Marek", "Kowalski", "marekKowalski@poczta.pl");
-        Student s3 = new Student("Mateusz", "Kowalski", "mateuszKowalski@poczta.pl");
-        Student s4 = new Student("Kuba", "Kowalski", "kubaKowalski@poczta.pl");
-        Student s5 = new Student("Andrzej", "Kowalski", "andrzejKowalski@poczta.pl");
+        List<Student> studentList = (List<Student>) session.getAttribute("studentList");
         
-        studentList.add(s1);
-        studentList.add(s2);
-        studentList.add(s3);
-        studentList.add(s4);
-        studentList.add(s5);
+        if(studentList == null){
+            studentList = new ArrayList<>();
+        }
+        
+        
         
         session.setAttribute("studentList", studentList);
 
         request.getRequestDispatcher("index.jsp").forward(request, response);
     }
-    
-    public int getTimer(){
-        return timer;
-    }
-    public void setTimer(){
-        timer++;
-    }
+   
     
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -64,12 +56,23 @@ public class HelloSrvlet extends HttpServlet {
         
         Student s = new Student(imie, nazwisko, email);
         
-        List<Student> list = (List<Student>)session.getAttribute("studentList");
-        list.add(s);
+        List<Student> studentList = (List<Student>) session.getAttribute("studentList");
         
-        session.setAttribute("studentList", list);
-        setTimer();
+        if(studentList == null){
+            studentList = new ArrayList<>();
+        }
+        studentList.add(s);
+        session.setAttribute("studentList", studentList);
+        
+        Integer timer = (Integer) session.getAttribute("timer");
+        if(timer == null){
+            timer = 0;
+        }
+           timer++;
+      
+        
         session.setAttribute("timer", timer);
+
         request.getRequestDispatcher("index.jsp").forward(request, response);
     }
 }
